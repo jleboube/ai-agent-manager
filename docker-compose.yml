@@ -1,0 +1,11 @@
+services:
+  web-ui:
+    build:
+      context: .
+      args:
+        # Pass the Gemini API key as VITE_API_KEY for build-time embedding
+        - VITE_API_KEY=${GEMINI_API_KEY}
+    ports:
+      - "8039:80"
+    restart: unless-stopped
+    container_name: ai-agent-builder-ui

@@ -1,0 +1,5 @@
+{
+  "name": "AI Agent Lifecycle Manager",
+  "description": "A web UI to visually build, configure, and export AI agents designed to manage the entire software development lifecycle. Create pre-defined agents or generate new ones from a description using Gemini.",
+  "requestFramePermissions": []
+}
