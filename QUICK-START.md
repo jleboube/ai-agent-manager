@@ -29,12 +29,12 @@ docker-compose up -d
 3. **Verify:**
 ```bash
 docker-compose ps
-curl http://localhost:3001/health
+curl http://localhost:4392/health
 ```
 
 4. **Access:**
 - Frontend: http://localhost:8039
-- Backend API: http://localhost:3001
+- Backend API: http://localhost:4392
 
 ### What this does:
 - ✅ PostgreSQL runs INSIDE Docker network (no host port exposure)
@@ -78,7 +78,7 @@ docker-compose -f docker-compose.external-db.yml up -d
 4. **Verify:**
 ```bash
 docker-compose -f docker-compose.external-db.yml ps
-curl http://localhost:3001/health
+curl http://localhost:4392/health
 ```
 
 ### What this does:
@@ -91,17 +91,17 @@ curl http://localhost:3001/health
 
 ## Change Default Ports
 
-If ports 3001 or 8039 are in use, add to `.env`:
+If ports 4392 or 8039 are in use, add to `.env`:
 
 ```bash
-BACKEND_PORT=3002   # Change backend port
+BACKEND_PORT=4393   # Change backend port
 FRONTEND_PORT=8040  # Change frontend port
 ```
 
 Then update:
 ```bash
-VITE_API_URL=http://localhost:3002/api
-GOOGLE_REDIRECT_URI=http://yourdomain.com:3002/api/auth/google/callback
+VITE_API_URL=http://localhost:4393/api
+GOOGLE_REDIRECT_URI=http://yourdomain.com:4393/api/auth/google/callback
 ```
 
 ---

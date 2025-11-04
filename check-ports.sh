@@ -7,7 +7,7 @@ echo "🔍 Checking for port conflicts..."
 echo ""
 
 # Default ports
-BACKEND_PORT=${BACKEND_PORT:-3001}
+BACKEND_PORT=${BACKEND_PORT:-4392}
 FRONTEND_PORT=${FRONTEND_PORT:-8039}
 POSTGRES_PORT=5432
 
@@ -58,7 +58,7 @@ if [ $BACKEND_STATUS -eq 1 ] || [ $FRONTEND_STATUS -eq 1 ]; then
     echo ""
     echo "Solutions:"
     echo "1. Change ports in .env file:"
-    echo "   BACKEND_PORT=3002"
+    echo "   BACKEND_PORT=4393"
     echo "   FRONTEND_PORT=8040"
     echo ""
     echo "2. Stop conflicting services"

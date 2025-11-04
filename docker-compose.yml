@@ -28,7 +28,7 @@ services:
     container_name: ai-agent-manager-backend
     environment:
       NODE_ENV: production
-      PORT: 3001
+      PORT: 4392
       # Use internal Docker network hostname 'postgres'
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/ai_agent_manager
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
@@ -52,7 +52,7 @@ services:
       SMTP_FROM: ${SMTP_FROM}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
     ports:
-      - "${BACKEND_PORT:-3001}:3001"
+      - "${BACKEND_PORT:-4392}:4392"
     networks:
       - ai-agent-network
     depends_on:
@@ -66,7 +66,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:4392/api}
     container_name: ai-agent-manager-frontend
     ports:
       - "${FRONTEND_PORT:-8039}:80"
