@@ -146,11 +146,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
           />
           <PricingCard
             title="Yearly"
-            price="$99.99"
+            price="$49.99"
             period="per year"
             features={[
               "Everything in Monthly",
-              "Save $50/year",
+              "Save $10 annually",
               "Extended support",
               "Early access to features"
             ]}

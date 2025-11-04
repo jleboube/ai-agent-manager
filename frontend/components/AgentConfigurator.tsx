@@ -42,6 +42,7 @@ const AgentConfigurator: React.FC<AgentConfiguratorProps> = ({ agent, onClose })
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [customInstructions, setCustomInstructions] = useState<string>('');
 
   useEffect(() => {
     const initialValues = agent.variables.reduce((acc, v) => {
@@ -53,6 +54,7 @@ const AgentConfigurator: React.FC<AgentConfiguratorProps> = ({ agent, onClose })
     setErrors({});
     setLogs([]);
     setApiError(null);
+    setCustomInstructions('');
   }, [agent]);
   
   const addLog = useCallback((message: string) => {
@@ -121,7 +123,11 @@ agent_id: "${agent.id}"
         for (const key in values) {
           output += `${key}: "${values[key]}"\n`;
         }
-        
+
+        if (customInstructions.trim()) {
+          output += `\n# Additional Instructions\n# -----------------------\n${customInstructions.trim()}\n`;
+        }
+
         if (agent.name === AgentName.ARCHITECT && values.use_search_grounding === 'Yes') {
           addLog("Querying AI with Google Search for architectural advice...");
           const prompt = `Based on these project requirements: Project Type is '${values.project_type}' and performance needs are '${values.performance_needs}', recommend a modern and robust software architecture and technology stack. Provide reasons for your choices.`;
@@ -185,16 +191,38 @@ ${advice.replace(/\n/g, '\n')}
 
       <div className="space-y-6 mb-8">
         {agent.variables.map(variable => (
-          <VariableInput 
-            key={variable.name} 
-            variable={variable} 
-            value={values[variable.name] || ''} 
+          <VariableInput
+            key={variable.name}
+            variable={variable}
+            value={values[variable.name] || ''}
             onChange={handleValueChange}
             error={errors[variable.name]}
           />
         ))}
       </div>
-      
+
+      {/* Custom Instructions Section */}
+      <div className="mb-8 p-6 bg-gray-700 rounded-lg border border-gray-600">
+        <label htmlFor="custom-instructions" className="block text-md font-semibold text-white mb-2">
+          Additional Instructions (Optional)
+        </label>
+        <p className="text-gray-400 text-sm mb-3">
+          Add any additional context, requirements, or specific instructions for this agent (max 500 characters).
+        </p>
+        <textarea
+          id="custom-instructions"
+          rows={4}
+          maxLength={500}
+          value={customInstructions}
+          onChange={(e) => setCustomInstructions(e.target.value)}
+          className="w-full bg-gray-800 border border-gray-600 rounded-md p-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+          placeholder="e.g., Focus on security best practices, include error handling examples, optimize for performance..."
+        />
+        <p className="text-gray-500 text-xs mt-1 text-right">
+          {customInstructions.length}/500 characters
+        </p>
+      </div>
+
       {apiError && (
         <div className="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-md mb-6" role="alert">
             <strong className="font-bold">Process Failed: </strong>
@@ -203,11 +231,51 @@ ${advice.replace(/\n/g, '\n')}
       )}
 
       {generatedCode && !apiError && (
-        <div className="mb-6 animate-fade-in">
-            <h3 className="text-xl font-semibold text-white mb-2">Generated Output Preview</h3>
-            <pre className="bg-gray-900 rounded-md p-4 text-gray-300 max-h-60 overflow-auto text-sm border border-gray-700">
-                <code>{generatedCode}</code>
-            </pre>
+        <div className="mb-6 animate-fade-in space-y-6">
+            <div>
+                <h3 className="text-xl font-semibold text-white mb-2">Generated Output Preview</h3>
+                <pre className="bg-gray-900 rounded-md p-4 text-gray-300 max-h-60 overflow-auto text-sm border border-gray-700">
+                    <code>{generatedCode}</code>
+                </pre>
+            </div>
+
+            {/* Usage Instructions */}
+            <div className="bg-indigo-900 border border-indigo-600 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-white mb-3 flex items-center">
+                    <svg className="h-6 w-6 mr-2" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    How to Use Your Agent Configuration
+                </h3>
+                <div className="space-y-4 text-gray-200">
+                    <div>
+                        <h4 className="font-semibold text-indigo-300 mb-2">📋 For Claude (Anthropic):</h4>
+                        <ol className="list-decimal list-inside space-y-1 text-sm ml-2">
+                            <li>Go to <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline">claude.ai</a></li>
+                            <li>Click on your profile → "Feature Preview"</li>
+                            <li>Enable "Projects" if not already enabled</li>
+                            <li>Create a new Project or open an existing one</li>
+                            <li>Click "Add Content" → "Upload Files"</li>
+                            <li>Upload your downloaded agent configuration file</li>
+                            <li>Claude will use this configuration as context for all conversations in that project</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-indigo-300 mb-2">🤖 For OpenAI (ChatGPT):</h4>
+                        <ol className="list-decimal list-inside space-y-1 text-sm ml-2">
+                            <li>Go to <a href="https://chat.openai.com" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline">chat.openai.com</a></li>
+                            <li>Start a new chat</li>
+                            <li>Click the paperclip icon (📎) to attach files</li>
+                            <li>Upload your downloaded agent configuration file</li>
+                            <li>Ask ChatGPT to act according to the configuration in the file</li>
+                            <li>Example: "Please act as the agent defined in the attached configuration file"</li>
+                        </ol>
+                    </div>
+                    <div className="bg-indigo-800 rounded p-3 text-sm">
+                        <strong>💡 Pro Tip:</strong> Save your configuration file in a dedicated folder for easy reuse. You can create multiple agents for different tasks and switch between them as needed!
+                    </div>
+                </div>
+            </div>
         </div>
       )}
 

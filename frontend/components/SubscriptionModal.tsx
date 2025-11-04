@@ -77,16 +77,16 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ onClose }) => {
           {/* Yearly Plan */}
           <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg p-6 border-2 border-indigo-400 relative">
             <div className="absolute -top-3 right-4 bg-green-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
-              Save $50/year
+              Save $10/year
             </div>
             <h3 className="text-2xl font-bold text-white mb-2">Yearly</h3>
             <div className="mb-4">
-              <span className="text-4xl font-bold text-white">$99.99</span>
+              <span className="text-4xl font-bold text-white">$49.99</span>
               <span className="text-gray-100 ml-2">per year</span>
             </div>
             <ul className="mb-6 space-y-3">
               <Feature text="Everything in Monthly" />
-              <Feature text="2 months free ($10 savings)" />
+              <Feature text="Save $10 vs monthly billing" />
               <Feature text="Extended support" />
               <Feature text="Early access to features" />
               <Feature text="Best value for power users" />

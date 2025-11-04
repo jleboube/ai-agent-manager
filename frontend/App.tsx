@@ -63,6 +63,7 @@ const AppContent: React.FC = () => {
   const handleCloseConfigurator = () => {
     setSelectedAgent(null);
     setIsCreatingNew(false);
+    setShowLanding(true);
   };
 
   const handleAgentCreated = (newAgent: Omit<Agent, 'id' | 'icon'> & { variables: Agent['variables'] }) => {
