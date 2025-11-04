@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  googleId      String?   @unique
+  name          String?
+  picture       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Subscription info
+  subscription  Subscription?
+
+  // Usage tracking
+  generations   AgentGeneration[]
+  usageAlerts   UsageAlert[]
+
+  @@index([email])
+  @@index([googleId])
+}
+
+model Subscription {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Stripe info
+  stripeCustomerId      String    @unique
+  stripeSubscriptionId  String    @unique
+  stripePriceId         String
+  stripeCurrentPeriodEnd DateTime
+
+  // Subscription details
+  plan              String    // 'monthly' or 'yearly'
+  status            String    // 'active', 'canceled', 'past_due', 'incomplete'
+  cancelAtPeriodEnd Boolean   @default(false)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+}
+
+model AgentGeneration {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Generation details
+  agentType   String    // 'planning', 'architect', 'custom', etc.
+  aiProvider  String    // 'gemini', 'claude', 'openai'
+  description String?   @db.Text
+
+  // Tracking
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+model UsageAlert {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Alert details
+  generationCount Int
+  weekStart       DateTime
+  weekEnd         DateTime
+  emailSent       Boolean   @default(false)
+  emailSentAt     DateTime?
+
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([weekStart])
+}

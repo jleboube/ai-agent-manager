@@ -3,8 +3,8 @@
 # Stage 1: Build the application
 FROM node:20-alpine AS builder
 
-# Accept build argument for API key
-ARG VITE_API_KEY
+# Accept build argument for API URL
+ARG VITE_API_URL=http://localhost:3001/api
 
 WORKDIR /app
 
@@ -12,14 +12,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-# Using npm install since no package-lock.json exists
 RUN npm install
 
 # Copy source code
 COPY . .
 
-# Build the application with the API key embedded
-ENV VITE_API_KEY=${VITE_API_KEY}
+# Build the application with the API URL embedded
+ENV VITE_API_URL=${VITE_API_URL}
 RUN npm run build
 
 # Stage 2: Serve with nginx

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Agent, AgentName } from '../types';
 import VariableInput from './VariableInput';
-import { getGroundedAdvice } from '../services/geminiService';
+import { aiApi } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AgentConfiguratorProps {
   agent: Agent;
@@ -34,6 +35,7 @@ const ActivityLog: React.FC<{ logs: string[] }> = ({ logs }) => {
 };
 
 const AgentConfigurator: React.FC<AgentConfiguratorProps> = ({ agent, onClose }) => {
+  const { refreshUser } = useAuth();
   const [values, setValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isGenerating, setIsGenerating] = useState(false);
@@ -121,18 +123,21 @@ agent_id: "${agent.id}"
         }
         
         if (agent.name === AgentName.ARCHITECT && values.use_search_grounding === 'Yes') {
-          addLog("Querying Gemini with Google Search for architectural advice...");
+          addLog("Querying AI with Google Search for architectural advice...");
           const prompt = `Based on these project requirements: Project Type is '${values.project_type}' and performance needs are '${values.performance_needs}', recommend a modern and robust software architecture and technology stack. Provide reasons for your choices.`;
-          const advice = await getGroundedAdvice(prompt);
+          const { advice } = await aiApi.getGroundedAdvice(prompt);
           addLog("✅ Received grounded advice.");
           output += `
-# Grounded Architectural Advice (from Gemini with Google Search)
+# Grounded Architectural Advice (AI-Powered with Google Search)
 # -------------------------------------------------------------
 """
 ${advice.replace(/\n/g, '\n')}
 """
 `;
         }
+
+        // Refresh user to update generation count
+        await refreshUser();
 
         output += "\n# --- End of Configuration ---\n";
         

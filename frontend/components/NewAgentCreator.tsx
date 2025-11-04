@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Agent, Variable } from '../types';
-import { generateAgentVariables } from '../services/geminiService';
+import { aiApi } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import { CustomAgentIcon } from './icons/AgentIcons';
 
 interface NewAgentCreatorProps {
@@ -9,9 +10,11 @@ interface NewAgentCreatorProps {
 }
 
 const NewAgentCreator: React.FC<NewAgentCreatorProps> = ({ onAgentCreated, onClose }) => {
+  const { refreshUser } = useAuth();
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiProvider, setAiProvider] = useState<string>('');
 
   const isDescriptionValid = description.trim().length >= 10;
 
@@ -26,14 +29,18 @@ const NewAgentCreator: React.FC<NewAgentCreatorProps> = ({ onAgentCreated, onClo
     setError(null);
 
     try {
-      const result = await generateAgentVariables(description);
+      const result = await aiApi.generateAgent(description, 'custom');
+      setAiProvider(result.provider);
       onAgentCreated({
-        name: result.name,
-        description: result.description,
-        variables: result.variables
+        name: result.agent.name,
+        description: result.agent.description,
+        variables: result.agent.variables
       });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+      // Refresh user to update generation count
+      await refreshUser();
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || err.message || 'An unknown error occurred.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +60,7 @@ const NewAgentCreator: React.FC<NewAgentCreatorProps> = ({ onAgentCreated, onClo
           <CustomAgentIcon className="h-12 w-12 text-indigo-400" />
           <div>
             <h2 className="text-3xl font-bold text-white">Create a New Custom Agent</h2>
-            <p className="text-gray-400">Describe your agent, and Gemini will generate its configuration.</p>
+            <p className="text-gray-400">Describe your agent, and AI will generate its configuration.</p>
           </div>
         </div>
         <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
@@ -77,7 +84,8 @@ const NewAgentCreator: React.FC<NewAgentCreatorProps> = ({ onAgentCreated, onClo
             placeholder="e.g., An agent that analyzes code for security vulnerabilities and suggests fixes."
           />
           <p className="text-gray-400 text-sm mt-2">
-            Provide a clear, concise description of what you want your agent to do. The more detail, the better Gemini can generate its parameters.
+            Provide a clear, concise description of what you want your agent to do. The more detail, the better AI can generate its parameters.
+            {aiProvider && <span className="text-indigo-400 font-semibold ml-2">(Powered by {aiProvider})</span>}
           </p>
         </div>
 
@@ -100,7 +108,7 @@ const NewAgentCreator: React.FC<NewAgentCreatorProps> = ({ onAgentCreated, onClo
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Generating with Gemini...
+                Generating with AI...
               </>
             ) : 'Generate Configuration'}
           </button>

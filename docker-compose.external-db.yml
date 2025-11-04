@@ -1,25 +1,10 @@
 version: '3.8'
 
-services:
-  # PostgreSQL Database (Internal - No port conflicts)
-  postgres:
-    image: postgres:16-alpine
-    container_name: ai-agent-manager-db
-    environment:
-      POSTGRES_DB: ai_agent_manager
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-    # NO ports exposed to host - only accessible within Docker network
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - ai-agent-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+# Alternative: Use external PostgreSQL on host
+# This configuration connects to an existing PostgreSQL instance
+# Use this when you have a shared PostgreSQL server on your host
 
+services:
   # Backend API
   backend:
     build:
@@ -29,8 +14,9 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      # Use internal Docker network hostname 'postgres'
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/ai_agent_manager
+      # Connect to PostgreSQL on host machine
+      # Use host.docker.internal to access host services from container
+      DATABASE_URL: ${DATABASE_URL}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
       JWT_SECRET: ${JWT_SECRET}
       SESSION_SECRET: ${SESSION_SECRET}
@@ -53,11 +39,8 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL}
     ports:
       - "${BACKEND_PORT:-3001}:3001"
-    networks:
-      - ai-agent-network
-    depends_on:
-      postgres:
-        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: sh -c "npm run prisma:migrate && npm start"
 
   # Frontend
@@ -70,14 +53,5 @@ services:
     container_name: ai-agent-manager-frontend
     ports:
       - "${FRONTEND_PORT:-8039}:80"
-    networks:
-      - ai-agent-network
     depends_on:
       - backend
-
-networks:
-  ai-agent-network:
-    driver: bridge
-
-volumes:
-  postgres_data:
