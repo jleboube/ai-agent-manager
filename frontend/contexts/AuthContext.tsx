@@ -46,48 +46,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshUser = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setUser(null);
-        return;
-      }
-
       const userData = await authApi.getCurrentUser();
       setUser(userData);
     } catch (error) {
       console.error('Failed to fetch user:', error);
       setUser(null);
-      localStorage.removeItem('token');
     }
   };
 
   useEffect(() => {
     const initAuth = async () => {
       setIsLoading(true);
+
+      // Check for OAuth callback success/error
+      const params = new URLSearchParams(window.location.search);
+      const authStatus = params.get('auth');
+
+      if (authStatus === 'success' || authStatus === 'error') {
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        if (authStatus === 'error') {
+          console.error('OAuth authentication failed');
+        }
+      }
+
+      // Fetch user data (will use cookie set by backend)
       await refreshUser();
       setIsLoading(false);
     };
 
     initAuth();
-
-    // Check for OAuth callback
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    if (code) {
-      handleOAuthCallback(code);
-    }
   }, []);
-
-  const handleOAuthCallback = async (code: string) => {
-    try {
-      const data = await authApi.handleGoogleCallback(code);
-      setUser(data.user);
-      // Clean up URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-    } catch (error) {
-      console.error('OAuth callback error:', error);
-    }
-  };
 
   const login = async () => {
     try {

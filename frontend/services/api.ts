@@ -4,33 +4,16 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  withCredentials: true, // Send cookies with requests
   headers: {
     'Content-Type': 'application/json',
   },
-});
-
-// Add token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
 });
 
 // Auth API
 export const authApi = {
   getGoogleAuthUrl: async () => {
     const { data } = await api.get('/auth/google/url');
-    return data;
-  },
-
-  handleGoogleCallback: async (code: string) => {
-    const { data } = await api.post('/auth/google/callback', { code });
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-    }
     return data;
   },
 
@@ -41,7 +24,6 @@ export const authApi = {
 
   logout: async () => {
     await api.post('/auth/logout');
-    localStorage.removeItem('token');
   },
 };
 
