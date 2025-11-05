@@ -8,6 +8,7 @@ import AgentConfigurator from './components/AgentConfigurator';
 import NewAgentCreator from './components/NewAgentCreator';
 import LandingPage from './components/LandingPage';
 import SubscriptionModal from './components/SubscriptionModal';
+import MyGeneratedAgents from './components/MyGeneratedAgents';
 import { CustomAgentIcon } from './components/icons/AgentIcons';
 
 const AppContent: React.FC = () => {
@@ -17,6 +18,7 @@ const AppContent: React.FC = () => {
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [showMyAgents, setShowMyAgents] = useState(false);
 
   const handleGetStarted = () => {
     if (isAuthenticated) {
@@ -108,10 +110,24 @@ const AppContent: React.FC = () => {
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {agents.map(agent => (
                   <AgentCard key={agent.id} agent={agent} onSelect={() => handleSelectAgent(agent)} />
                 ))}
+
+                {/* My Generated Agents Card */}
+                <div
+                  className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg p-6 flex flex-col items-center justify-center text-center border-2 border-purple-400 hover:border-purple-300 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  onClick={() => setShowMyAgents(true)}
+                >
+                  <svg className="h-12 w-12 text-white mb-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                  </svg>
+                  <h3 className="text-xl font-semibold text-white">My Generated Agents</h3>
+                  <p className="text-gray-100 mt-2">View and download your historical agents.</p>
+                </div>
+
+                {/* Create New Agent Card */}
                 <div
                   className="bg-gray-800 rounded-lg p-6 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-600 hover:border-indigo-500 hover:bg-gray-700 transition-all duration-300 cursor-pointer"
                   onClick={handleCreateNew}
@@ -126,6 +142,9 @@ const AppContent: React.FC = () => {
         </main>
         {showSubscriptionModal && (
           <SubscriptionModal onClose={() => setShowSubscriptionModal(false)} />
+        )}
+        {showMyAgents && (
+          <MyGeneratedAgents onClose={() => setShowMyAgents(false)} />
         )}
       </div>
     );

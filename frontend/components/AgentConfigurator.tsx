@@ -161,6 +161,35 @@ ${advice.replace(/\n/g, '\n')}
         URL.revokeObjectURL(url);
         addLog("⬇️ File download initiated successfully.");
 
+        // Save the generated agent to database for historical access
+        addLog("💾 Saving agent to your library...");
+        try {
+          // Determine AI provider
+          const aiProvider = (agent.name === AgentName.ARCHITECT && values.use_search_grounding === 'Yes')
+            ? 'gemini'
+            : 'manual';
+
+          // Create description from values and custom instructions
+          let description = Object.entries(values)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(', ');
+          if (customInstructions.trim()) {
+            description += ` | Additional: ${customInstructions.trim()}`;
+          }
+
+          await aiApi.saveAgent({
+            agentName: agent.name,
+            agentType: agent.id,
+            aiProvider,
+            fileContent: output,
+            description,
+          });
+          addLog("✅ Agent saved to your library.");
+        } catch (saveError) {
+          console.error('Failed to save agent:', saveError);
+          addLog("⚠️ Warning: Agent downloaded but not saved to library.");
+        }
+
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
         setApiError(errorMessage);

@@ -41,6 +41,27 @@ export const aiApi = {
     const { data } = await api.post('/ai/advice', { prompt });
     return data;
   },
+
+  saveAgent: async (agentData: {
+    agentName: string;
+    agentType: string;
+    aiProvider: string;
+    fileContent: string;
+    description?: string;
+  }) => {
+    const { data } = await api.post('/ai/save-agent', agentData);
+    return data;
+  },
+
+  getMyAgents: async () => {
+    const { data } = await api.get('/ai/my-agents');
+    return data;
+  },
+
+  downloadAgent: async (agentId: string) => {
+    const { data } = await api.get(`/ai/agent/${agentId}`);
+    return data;
+  },
 };
 
 // Subscription API

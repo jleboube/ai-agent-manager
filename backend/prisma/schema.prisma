@@ -60,9 +60,14 @@ model AgentGeneration {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Generation details
+  agentName   String    // Name of the agent
   agentType   String    // 'planning', 'architect', 'custom', etc.
   aiProvider  String    // 'gemini', 'claude', 'openai'
   description String?   @db.Text
+
+  // Stored content
+  fileContent String    @db.Text  // Full generated configuration file
+  fileSizeBytes Int     @default(0)  // Size in bytes for storage tracking
 
   // Tracking
   createdAt   DateTime  @default(now())
