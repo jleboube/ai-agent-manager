@@ -183,7 +183,8 @@ router.post('/reactivate', authenticateToken, async (req: AuthRequest, res: Resp
 });
 
 // Stripe webhook handler
-router.post('/webhook', express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+// Note: express.raw() is applied at the server level in server.ts
+router.post('/webhook', async (req: Request, res: Response) => {
   const sig = req.headers['stripe-signature'] as string;
 
   let event: Stripe.Event;

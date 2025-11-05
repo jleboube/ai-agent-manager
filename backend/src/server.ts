@@ -20,6 +20,11 @@ app.use(cors({
   credentials: true,
 }));
 
+// IMPORTANT: Stripe webhook must come BEFORE express.json()
+// The webhook needs the raw body to verify the signature
+app.use('/api/subscription/webhook', express.raw({ type: 'application/json' }), subscriptionRoutes);
+
+// Now apply JSON body parser to all other routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -40,7 +45,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Routes
+// Routes (webhook already mounted above)
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/subscription', subscriptionRoutes);
