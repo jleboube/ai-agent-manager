@@ -39,7 +39,10 @@
 
 ### Screenshots
 
-![Alt text](/ai-agent-manager.png "AI Agent Manager Landing Page")
+![Alt text](/aam-sc2.png "AI Agent Manager Landing Page")
+![Alt text](/aam-sc1.png "AI Agent Manager Landing Page")
+
+![Alt text](/aam-sc3.png "AI Agent Manager Dashboard")
 
 ## Tech Stack
 
